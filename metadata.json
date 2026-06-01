@@ -1,0 +1,6 @@
+{
+  "name": "ExamInsight AI",
+  "description": "An expert AI exam analyst and curriculum mapping platform. Upload exam papers to receive deep topic breakdowns, chapter-wise weightage analyses, and strategic preparation insights.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
