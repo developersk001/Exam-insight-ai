@@ -850,26 +850,17 @@ export default function App() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl md:text-2xl font-bold font-sans tracking-tight">ExamInsight AI</h1>
+              <h1 className="text-xl md:text-2xl font-bold font-sans tracking-tight">Exam Insight AI</h1>
               <span className="text-[10px] bg-indigo-500/20 text-indigo-300 font-mono py-0.5 px-2 rounded-full border border-indigo-500/30">v3.5 Core</span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">Expert Exam Analytics, Curriculum Mapping & Strategic Insights Engine</p>
-          </div>
-        </div>
-
-        {/* Live Active Status Log */}
-        <div className="flex items-center gap-4 text-xs font-mono bg-slate-900 px-4 py-2 rounded-lg border border-slate-800">
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-            <span className="text-slate-300">SERVER ACTIVE: Port 3000</span>
-          </div>
-          <span className="text-slate-500">|</span>
-          <div className="text-slate-400">
-            {activeAnalysisSource ? (
-              <span className="text-indigo-300 font-semibold">{activeAnalysisSource}</span>
-            ) : (
-              <span>No Exam Loaded</span>
-            )}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-0.5">
+              <p className="text-xs text-slate-400">Expert Exam Analytics, Curriculum Mapping & Strategic Insights Engine</p>
+              <span className="hidden sm:inline text-slate-600 text-[10px]">•</span>
+              <span className="text-xs text-indigo-400 font-medium tracking-wide flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                Created by <span className="font-semibold text-indigo-300">Shivam Krishna</span>
+              </span>
+            </div>
           </div>
         </div>
       </header>
