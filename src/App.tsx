@@ -59,6 +59,7 @@ export default function App() {
   const [activeAnalysisSource, setActiveAnalysisSource] = useState<string>("");
   const [selectedJeeYear, setSelectedJeeYear] = useState<"2025" | "2024" | "2023">("2025");
   const [compareYearId, setCompareYearId] = useState<string>("jee_main_2025");
+  const [preloadedCategoryTab, setPreloadedCategoryTab] = useState<"cumulative" | "yearly">("cumulative");
 
   // Generate 7-day study planner dynamically using High-Yield Chapters and High Difficulty questions
   const studyPlan = useMemo(() => {
@@ -1028,12 +1029,35 @@ export default function App() {
               Access pre-compiled curriculum blueprints and exam weightage reports from premium Indian technology entrance papers.
             </p>
 
-            <div className="flex flex-col gap-3">
+            {/* Premium Interactive Category Switcher Tab bar */}
+            <div className="flex bg-slate-100 p-0.5 rounded-lg text-[10px] font-mono font-bold border border-slate-200/50 mt-1">
+              <button
+                type="button"
+                onClick={() => setPreloadedCategoryTab("cumulative")}
+                className={`flex-1 py-1 px-2 rounded-md text-center transition-all duration-200 cursor-pointer ${
+                  preloadedCategoryTab === "cumulative"
+                    ? "bg-white text-indigo-600 shadow-xs"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                📁 Cumulative
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreloadedCategoryTab("yearly")}
+                className={`flex-1 py-1 px-2 rounded-md text-center transition-all duration-200 cursor-pointer ${
+                  preloadedCategoryTab === "yearly"
+                    ? "bg-white text-indigo-600 shadow-xs"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                📆 Year-By-Year
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3 mt-1">
               {/* Cumulative Trends Subsection */}
-              <div>
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide font-mono block mb-1.5">
-                  📁 Cumulative Trend Reports
-                </span>
+              {preloadedCategoryTab === "cumulative" && (
                 <div className="flex flex-col gap-2">
                   {/* JEE Main Card */}
                   <div className="p-2.5 bg-slate-50 border border-slate-200 hover:border-indigo-100 rounded-xl transition-all flex flex-col gap-2 group" id="card-jee-main">
@@ -1095,94 +1119,96 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Year-by-Year Solved Blueprints Subsection */}
-              <div className="pt-3 border-t border-slate-100">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider font-mono block">
-                    📆 Year-By-Year Solved
-                  </span>
-                  {/* Segmented Selector for Year */}
-                  <div className="flex bg-slate-100 p-0.5 rounded-md text-[9px] font-mono font-bold">
-                    {(["2025", "2024", "2023"] as const).map((yr) => (
-                      <button
-                        key={yr}
-                        onClick={() => setSelectedJeeYear(yr)}
-                        className={`px-1.5 py-0.5 rounded transition-all cursor-pointer ${
-                          selectedJeeYear === yr
-                            ? "bg-white text-slate-900 shadow-xs"
-                            : "text-slate-400 hover:text-slate-600"
-                        }`}
-                      >
-                        {yr}
-                      </button>
-                    ))}
+              {preloadedCategoryTab === "yearly" && (
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between mb-1 bg-slate-50 p-2 rounded-xl border border-slate-200/40">
+                    <span className="text-[9.5px] font-bold text-slate-500 uppercase tracking-wider font-mono block">
+                      Select Exam Year:
+                    </span>
+                    {/* Segmented Selector for Year */}
+                    <div className="flex bg-slate-200/60 p-0.5 rounded-md text-[9px] font-mono font-bold">
+                      {(["2025", "2024", "2023"] as const).map((yr) => (
+                        <button
+                          key={yr}
+                          onClick={() => setSelectedJeeYear(yr)}
+                          className={`px-1.5 py-0.5 rounded transition-all cursor-pointer ${
+                            selectedJeeYear === yr
+                              ? "bg-white text-slate-900 shadow-xs"
+                              : "text-slate-500 hover:text-slate-700"
+                          }`}
+                        >
+                          {yr}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2">
+                    {/* Selected Year JEE Main Card */}
+                    {JEE_YEARLY_EXAMS[`jee_main_${selectedJeeYear}`] && (
+                      <div className="p-2.5 bg-indigo-50/20 border border-indigo-100/40 rounded-xl flex flex-col gap-2">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="text-xs font-bold text-indigo-950">JEE Main {selectedJeeYear}</h4>
+                            <p className="text-[9.5px] text-indigo-500 font-semibold">Official Solved Shift Metrics</p>
+                          </div>
+                          <span className="text-[9px] bg-indigo-100/70 text-indigo-800 font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0">
+                            300 M
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <button
+                            onClick={() => loadSample(`jee_main_${selectedJeeYear}`)}
+                            className="flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 hover:text-slate-950 hover:border-slate-300 transition-all cursor-pointer"
+                          >
+                            📊 Open
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => downloadPdfReport(JEE_YEARLY_EXAMS[`jee_main_${selectedJeeYear}`].data, JEE_YEARLY_EXAMS[`jee_main_${selectedJeeYear}`].title)}
+                            className="flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-sm cursor-pointer"
+                          >
+                            <Download className="w-3 h-3 text-white" /> PDF
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Selected Year JEE Advanced Card */}
+                    {JEE_YEARLY_EXAMS[`jee_advanced_${selectedJeeYear}`] && (
+                      <div className="p-2.5 bg-purple-50/20 border border-purple-100/40 rounded-xl flex flex-col gap-2">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="text-xs font-bold text-purple-950 font-sans">JEE Advanced {selectedJeeYear}</h4>
+                            <p className="text-[9.5px] text-purple-600 font-medium">Cognitive Synthesis Trends</p>
+                          </div>
+                          <span className="text-[9px] bg-purple-100/70 text-purple-800 font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0">
+                            360 M
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <button
+                            onClick={() => loadSample(`jee_advanced_${selectedJeeYear}`)}
+                            className="flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 hover:text-slate-950 hover:border-slate-300 transition-all cursor-pointer"
+                          >
+                            📊 Open
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => downloadPdfReport(JEE_YEARLY_EXAMS[`jee_advanced_${selectedJeeYear}`].data, JEE_YEARLY_EXAMS[`jee_advanced_${selectedJeeYear}`].title)}
+                            className="flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-sm cursor-pointer"
+                          >
+                            <Download className="w-3 h-3 text-white" /> PDF
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                <div className="grid grid-cols-1 gap-2">
-                  {/* Selected Year JEE Main Card */}
-                  {JEE_YEARLY_EXAMS[`jee_main_${selectedJeeYear}`] && (
-                    <div className="p-2.5 bg-indigo-50/20 border border-indigo-100/40 rounded-xl flex flex-col gap-2">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="text-xs font-bold text-indigo-950">JEE Main {selectedJeeYear}</h4>
-                          <p className="text-[9.5px] text-indigo-500 font-semibold">Official Solved Shift Metrics</p>
-                        </div>
-                        <span className="text-[9px] bg-indigo-100/70 text-indigo-800 font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0">
-                          300 M
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        <button
-                          onClick={() => loadSample(`jee_main_${selectedJeeYear}`)}
-                          className="flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 hover:text-slate-950 hover:border-slate-300 transition-all cursor-pointer"
-                        >
-                          📊 Open
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => downloadPdfReport(JEE_YEARLY_EXAMS[`jee_main_${selectedJeeYear}`].data, JEE_YEARLY_EXAMS[`jee_main_${selectedJeeYear}`].title)}
-                          className="flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-sm cursor-pointer"
-                        >
-                          <Download className="w-3 h-3 text-white" /> PDF
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Selected Year JEE Advanced Card */}
-                  {JEE_YEARLY_EXAMS[`jee_advanced_${selectedJeeYear}`] && (
-                    <div className="p-2.5 bg-purple-50/20 border border-purple-100/40 rounded-xl flex flex-col gap-2">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="text-xs font-bold text-purple-950 font-sans">JEE Advanced {selectedJeeYear}</h4>
-                          <p className="text-[9.5px] text-purple-600 font-medium">Cognitive Synthesis Trends</p>
-                        </div>
-                        <span className="text-[9px] bg-purple-100/70 text-purple-800 font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0">
-                          360 M
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        <button
-                          onClick={() => loadSample(`jee_advanced_${selectedJeeYear}`)}
-                          className="flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 hover:text-slate-950 hover:border-slate-300 transition-all cursor-pointer"
-                        >
-                          📊 Open
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => downloadPdfReport(JEE_YEARLY_EXAMS[`jee_advanced_${selectedJeeYear}`].data, JEE_YEARLY_EXAMS[`jee_advanced_${selectedJeeYear}`].title)}
-                          className="flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-sm cursor-pointer"
-                        >
-                          <Download className="w-3 h-3 text-white" /> PDF
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+              )}
             </div>
           </div>
 

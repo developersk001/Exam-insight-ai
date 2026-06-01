@@ -237,7 +237,7 @@ Guidelines:
 
       const response = await ai.models.generateContent({
         model: finalModel,
-        contents: [filePart, { text: prompt }],
+        contents: { parts: [filePart, { text: prompt }] },
         config: {
           systemInstruction,
           responseMimeType: "application/json",
