@@ -315,10 +315,25 @@ export default function App() {
         body: JSON.stringify(payload)
       });
 
-      const data = await response.json();
+      let data: any = null;
+      const contentType = response.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        try {
+          data = await response.json();
+        } catch (jsonErr) {
+          console.error("JSON parsing error:", jsonErr);
+        }
+      }
 
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || "Failed to analyze paper. See console or check your link.");
+      if (!response.ok) {
+        if (response.status === 413) {
+          throw new Error("The uploaded file is too large for the network gateway. Please use a compressed PDF or image file (under 2MB recommended), or use a web link.");
+        }
+        throw new Error(data?.error || `Server returned status ${response.status}: ${response.statusText}`);
+      }
+
+      if (!data || !data.success) {
+        throw new Error(data?.error || "Analysis was not successful. Please verify the response format.");
       }
 
       setAnalysisResult(data.analysis);
