@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import { GoogleGenAI, Type } from "@google/genai";
 import { createServer as createViteServer } from "vite";
@@ -13,6 +14,13 @@ const __dirname = path.dirname(__filename);
 async function startServer() {
   const app = express();
   const PORT = 3000;
+
+  // Custom Request logger
+  app.use((req, res, next) => {
+    const logMsg = `[${new Date().toISOString()}] ${req.method} ${req.url} - Content-Length: ${req.headers["content-length"] || 0} - IP: ${req.ip}\n`;
+    fs.appendFileSync(path.join(process.cwd(), "server_requests.log"), logMsg);
+    next();
+  });
 
   // Set payload size limits high enough for exam PDFs and multiple pages
   app.use(express.json({ limit: "50mb" }));
@@ -289,6 +297,17 @@ Guidelines:
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
+
+  // Error-handling middleware to log express errors
+  app.use((err: any, req: any, res: any, next: any) => {
+    const errorMsg = `[${new Date().toISOString()}] ERROR: ${err.message || err} ${err.stack || ""}\n`;
+    fs.appendFileSync(path.join(process.cwd(), "server_requests.log"), errorMsg);
+    if (!res.headersSent) {
+      res.status(err.status || 500).json({ success: false, error: err.message || "Internal server error" });
+    } else {
+      next(err);
+    }
+  });
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`ExamInsight AI server running on http://localhost:${PORT}`);
